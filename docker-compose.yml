@@ -105,35 +105,35 @@ services:
     depends_on:
       - elasticsearch
 
-  metricbeat:
-    build:
-      context: metricbeat/
-      args:
-        ELK_VERSION: $ELK_VERSION
-    volumes:
-      - type: bind
-        source: ./metricbeat/config/metricbeat.yml
-        target: /usr/share/metricbeat/metricbeat.yml
-        read_only: true
-    networks:
-      - elk
-    depends_on:
-      - elasticsearch
+  # metricbeat:
+  #   build:
+  #     context: metricbeat/
+  #     args:
+  #       ELK_VERSION: $ELK_VERSION
+  #   volumes:
+  #     - type: bind
+  #       source: ./metricbeat/config/metricbeat.yml
+  #       target: /usr/share/metricbeat/metricbeat.yml
+  #       read_only: true
+  #   networks:
+  #     - elk
+  #   depends_on:
+  #     - elasticsearch
 
-  filebeat:
-    build:
-      context: filebeat/
-      args:
-        ELK_VERSION: $ELK_VERSION
-    volumes:
-      - type: bind
-        source: ./filebeat/config/filebeat.yml
-        target: /usr/share/filebeat/filebeat.yml
-        read_only: true
-    networks:
-      - elk
-    depends_on:
-      - elasticsearch
+  # filebeat:
+  #   build:
+  #     context: filebeat/
+  #     args:
+  #       ELK_VERSION: $ELK_VERSION
+  #   volumes:
+  #     - type: bind
+  #       source: ./filebeat/config/filebeat.yml
+  #       target: /usr/share/filebeat/filebeat.yml
+  #       read_only: true
+  #   networks:
+  #     - elk
+  #   depends_on:
+  #     - elasticsearch
 
   python-app:
     build: python-app
