@@ -1,0 +1,16 @@
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  username: "elastic"
+  password: "changeme"
+
+setup.kibana:
+  host: "http://kibana:5601"
+
+metricbeat.modules:
+  - module: redis
+    metricsets: ["info", "keyspace"]
+    enabled: true
+    period: 10s
+
+    # Redis hosts
+    hosts: ["redis:6379"]

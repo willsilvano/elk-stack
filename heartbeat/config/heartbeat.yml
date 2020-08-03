@@ -1,0 +1,32 @@
+heartbeat.monitors:
+  - type: http
+    id: kibana-monitor
+    name: kibana-monitor
+    schedule: "@every 30s"
+    timeout: 30s
+    urls:
+      - http://kibana:5601
+
+  - type: http
+    id: python-monitor
+    name: python-monitor
+    schedule: "@every 30s"
+    timeout: 30s
+    urls:
+      - http://python-app:5000
+
+  - type: icmp
+    id: icmp-elk
+    name: icmp-elk
+    schedule: "@every 5s"
+    hosts:
+      - elasticsearch
+      - kibana
+
+output.elasticsearch:
+  hosts: ["http://elasticsearch:9200"]
+  username: "elastic"
+  password: "changeme"
+
+setup.kibana:
+  host: "http://kibana:5601"
