@@ -136,16 +136,16 @@ services:
   #     - elasticsearch
 
   python-app:
-    build: python-app
+    build: apps/python-app
     volumes:
-      - ./python-app:/usr/src/app
+      - ./apps/python-app:/usr/src/app
     ports:
       - "8081:5000"
     networks:
       - elk
 
   java-app:
-    build: java-app
+    build: apps/java-app
     ports:
       - "8082:8080"
     networks:
