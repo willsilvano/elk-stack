@@ -151,11 +151,38 @@ services:
     networks:
       - elk
 
+  php-app:
+    build: apps/php-app
+    volumes:
+      - ./apps/php-app:/var/www
+    networks:
+      - elk
+
+  nginx:
+    image: nginx:1.17-alpine
+    ports:
+      - 8000:80
+    volumes:
+      - ./apps/php-app:/var/www
+      - ./apps/php-app/nginx:/etc/nginx/conf.d
+    networks:
+      - elk
+
   redis:
     image: redis
     command: redis-server --requirepass Redis2019!
     ports:
       - "6379:6379"
+
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_USER: ${MYSQL_USERNAME}
+    networks:
+      - elk
 
 networks:
   elk:
