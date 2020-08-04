@@ -15,6 +15,14 @@ heartbeat.monitors:
     urls:
       - http://python-app:5000
 
+  - type: http
+    id: java-monitor
+    name: java-monitor
+    schedule: "@every 30s"
+    timeout: 30s
+    urls:
+      - http://java-app:8080
+
   - type: icmp
     id: icmp-elk
     name: icmp-elk
