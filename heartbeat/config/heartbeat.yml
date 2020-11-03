@@ -23,6 +23,14 @@ heartbeat.monitors:
     urls:
       - http://java-app:8080
 
+  - type: http
+    id: go-monitor
+    name: go-monitor
+    schedule: "@every 30s"
+    timeout: 30s
+    urls:
+      - http://go-app:8080
+
   - type: icmp
     id: icmp-elk
     name: icmp-elk

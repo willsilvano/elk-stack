@@ -100,40 +100,43 @@ services:
         source: ./heartbeat/config/heartbeat.yml
         target: /usr/share/heartbeat/heartbeat.yml
         read_only: true
+    command: heartbeat -e -strict.perms=false
     networks:
       - elk
     depends_on:
       - elasticsearch
 
-  # metricbeat:
-  #   build:
-  #     context: metricbeat/
-  #     args:
-  #       ELK_VERSION: $ELK_VERSION
-  #   volumes:
-  #     - type: bind
-  #       source: ./metricbeat/config/metricbeat.yml
-  #       target: /usr/share/metricbeat/metricbeat.yml
-  #       read_only: true
-  #   networks:
-  #     - elk
-  #   depends_on:
-  #     - elasticsearch
+  metricbeat:
+    build:
+      context: metricbeat/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./metricbeat/config/metricbeat.yml
+        target: /usr/share/metricbeat/metricbeat.yml
+        read_only: true
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    command: metricbeat -e -system.hostfs=/hostfs -strict.perms=false
 
-  # filebeat:
-  #   build:
-  #     context: filebeat/
-  #     args:
-  #       ELK_VERSION: $ELK_VERSION
-  #   volumes:
-  #     - type: bind
-  #       source: ./filebeat/config/filebeat.yml
-  #       target: /usr/share/filebeat/filebeat.yml
-  #       read_only: true
-  #   networks:
-  #     - elk
-  #   depends_on:
-  #     - elasticsearch
+  filebeat:
+    build:
+      context: filebeat/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    volumes:
+      - type: bind
+        source: ./filebeat/config/filebeat.yml
+        target: /usr/share/filebeat/filebeat.yml
+        read_only: true
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    command: filebeat -e -strict.perms=false
 
   python-app:
     build: apps/python-app
@@ -155,6 +158,13 @@ services:
     build: apps/php-app
     volumes:
       - ./apps/php-app:/var/www
+    networks:
+      - elk
+
+  go-app:
+    build: apps/go-app    
+    ports: 
+      - "8083:8080"
     networks:
       - elk
 

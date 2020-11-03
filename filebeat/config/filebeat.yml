@@ -46,6 +46,10 @@ filebeat.modules:
     slowlog:
       enabled: true
 
+  - module: system
+    syslog:
+      var.paths: ["/var/log/host/system.log*"]
+
 output.elasticsearch:
   hosts: ["http://elasticsearch:9200"]
   username: "elastic"
