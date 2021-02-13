@@ -14,6 +14,9 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip
 
+COPY ./docker/php/apm-agent-php_1.0.0-beta1_all.deb /tmp/
+RUN dpkg -i /tmp/apm-agent-php_1.0.0-beta1_all.deb
+
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
