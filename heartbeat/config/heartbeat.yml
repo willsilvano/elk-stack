@@ -31,6 +31,14 @@ heartbeat.monitors:
     urls:
       - http://go-app:8080
 
+  - type: http
+    id: nginx-php-monitor
+    name: nginx-php-monitor
+    schedule: "@every 30s"
+    timeout: 30s
+    urls:
+      - http://nginx:80
+
   - type: icmp
     id: icmp-elk
     name: icmp-elk
