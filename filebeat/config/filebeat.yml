@@ -1,59 +1,20 @@
 #==========================  Modules configuration =============================
-filebeat.modules:
-  - module: elasticsearch
-    # Server log
-    server:
-      enabled: true
-      # Set custom paths for the log files. If left empty,
-      # Filebeat will choose the paths depending on your OS.
-      #var.paths:
+filebeat.config:
+  modules:
+    path: ${path.config}/modules.d/*.yml
+    reload.enabled: false
 
-    gc:
-      enabled: true
-      # Set custom paths for the log files. If left empty,
-      # Filebeat will choose the paths depending on your OS.
-      #var.paths:
-
-    audit:
-      enabled: true
-      # Set custom paths for the log files. If left empty,
-      # Filebeat will choose the paths depending on your OS.
-      #var.paths:
-
-    slowlog:
-      enabled: true
-      # Set custom paths for the log files. If left empty,
-      # Filebeat will choose the paths depending on your OS.
-      #var.paths:
-
-    deprecation:
-      enabled: true
-      # Set custom paths for the log files. If left empty,
-      # Filebeat will choose the paths depending on your OS.
-      #var.paths:
-
-  - module: kibana
-    # All logs
-    log:
-      enabled: true
-      # Set custom paths for the log files. If left empty,
-      # Filebeat will choose the paths depending on your OS.
-      #var.paths:
-
-  - module: logstash
-    log:
-      enabled: true
-    slowlog:
-      enabled: true
-
-  - module: system
-    syslog:
-      var.paths: ["/var/log/host/system.log*"]
+filebeat.autodiscover:
+  providers:
+    - type: docker
+      hints.enabled: true
 
 output.elasticsearch:
-  hosts: ["http://elasticsearch:9200"]
+  hosts: ["https://elasticsearch:9200"]
   username: "elastic"
   password: "changeme"
+  ssl:
+    certificate_authorities: ['elasticsearch-ca.pem']
 
 setup.kibana:
-  host: "http://kibana:5601"
+  host: "https://kibana:5601"

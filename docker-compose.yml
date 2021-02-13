@@ -136,37 +136,55 @@ services:
     depends_on:
       - elasticsearch
 
-  # metricbeat:
-  #   build:
-  #     context: metricbeat/
-  #     args:
-  #       ELK_VERSION: $ELK_VERSION
-  #   volumes:
-  #     - type: bind
-  #       source: ./metricbeat/config/metricbeat.yml
-  #       target: /usr/share/metricbeat/metricbeat.yml
-  #       read_only: true
-  #   networks:
-  #     - elk
-  #   depends_on:
-  #     - elasticsearch
-  #   command: metricbeat -e -system.hostfs=/hostfs -strict.perms=false
+  metricbeat:
+    build:
+      context: metricbeat/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    user: root
+    volumes:
+      - type: bind
+        source: ./metricbeat/config/metricbeat.yml
+        target: /usr/share/metricbeat/metricbeat.yml
+        read_only: true
+       # (!) CA certificate. Generate using instructions from tls/README.md
+      - type: bind
+        source: ./tls/kibana/elasticsearch-ca.pem
+        target: /usr/share/metricbeat/elasticsearch-ca.pem
+        read_only: true
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
+      - /proc:/hostfs/proc:ro
+      - /:/hostfs:ro
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    command: metricbeat -e
 
-  # filebeat:
-  #   build:
-  #     context: filebeat/
-  #     args:
-  #       ELK_VERSION: $ELK_VERSION
-  #   volumes:
-  #     - type: bind
-  #       source: ./filebeat/config/filebeat.yml
-  #       target: /usr/share/filebeat/filebeat.yml
-  #       read_only: true
-  #   networks:
-  #     - elk
-  #   depends_on:
-  #     - elasticsearch
-  #   command: filebeat -e -strict.perms=false
+  filebeat:
+    build:
+      context: filebeat/
+      args:
+        ELK_VERSION: $ELK_VERSION
+    user: root
+    volumes:
+      - type: bind
+        source: ./filebeat/config/filebeat.yml
+        target: /usr/share/filebeat/filebeat.yml
+        read_only: true
+      # (!) CA certificate. Generate using instructions from tls/README.md
+      - type: bind
+        source: ./tls/kibana/elasticsearch-ca.pem
+        target: /usr/share/filebeat/elasticsearch-ca.pem
+        read_only: true
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - elk
+    depends_on:
+      - elasticsearch
+    command: filebeat -e -strict.perms=false
 
   python-app:
     build: apps/python-app
@@ -226,9 +244,21 @@ services:
       MYSQL_DATABASE: ${MYSQL_DATABASE}
       MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
-      MYSQL_USER: ${MYSQL_USERNAME}
+      MYSQL_USER: ${MYSQL_USERNAME}  
     networks:
       - elk
+  
+  apache-teste:
+    image: httpd:2.4
+    ports: 
+      - 8084:80
+    labels: 
+      co.elastic.logs/module: apache2
+      co.elastic.logs/fileset.stdout: access
+      co.elastic.logs/fileset.stderr: error
+      co.elastic.metrics/module: apache
+      co.elastic.metrics/metricsets: status
+      co.elastic.metrics/hosts: "localhost:8084"
 
 networks:
   elk:
