@@ -35,6 +35,13 @@ return [
     */
 
     'channels' => [
+        'logstash' => [
+            'driver' => 'custom',
+            'via'    => \App\LogstashLogger::class,
+            'host'   => env('LOGSTASH_HOST', 'logstash'),
+            'port'   => env('LOGSTASH_PORT', 5000),
+        ],
+
         'stack' => [
             'driver' => 'stack',
             'channels' => ['single'],
