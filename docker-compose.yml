@@ -1,6 +1,27 @@
 version: "3.2"
 
 services:
+
+  traefik:
+    image: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+      - elk
+    labels: 
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=Host(`traefik.localhost`)"
+      - "traefik.http.services.traefik.loadbalancer.server.port=8080"
+
   elasticsearch:
     build:
       context: elasticsearch/
@@ -32,9 +53,11 @@ services:
       # Use single node discovery in order to disable production mode and avoid bootstrap checks
       # see https://www.elastic.co/guide/en/elasticsearch/reference/current/bootstrap-checks.html
       discovery.type: single-node
-
     networks:
       - elk
+    labels: 
+      - "traefik.enable=true"
+      - "traefik.http.routers.elasticsearch.rule=Host(`elasticsearch.localhost`)"
 
   logstash:
     build:
@@ -66,6 +89,9 @@ services:
       - elk
     depends_on:
       - elasticsearch
+    labels: 
+      - "traefik.enable=true"
+      - "traefik.http.routers.logstash.rule=Host(`logstash.localhost`)"
 
   kibana:
     build:
@@ -82,12 +108,14 @@ services:
         source: ./tls/kibana/elasticsearch-ca.pem
         target: /usr/share/kibana/config/elasticsearch-ca.pem
         read_only: true
-    ports:
-      - "5601:5601"
     networks:
       - elk
     depends_on:
       - elasticsearch
+    labels: 
+      - "traefik.enable=true"           
+      - "traefik.http.routers.kibana.rule=Host(`kibana.localhost`)"
+      - "traefik.http.services.kibana.loadbalancer.server.port=5601"
 
   apm-server:
     build:
@@ -114,6 +142,9 @@ services:
       - elk
     depends_on:
       - elasticsearch
+    labels: 
+      - "traefik.enable=true"           
+      - "traefik.http.routers.apm-server.rule=Host(`apm.localhost`)"
 
   heartbeat:
     build:
@@ -190,17 +221,21 @@ services:
     build: apps/python-app
     volumes:
       - ./apps/python-app:/usr/src/app
-    ports:
-      - "8081:5000"
     networks:
-      - elk
+      - elk    
+    labels: 
+      - "traefik.enable=true"           
+      - "traefik.http.routers.python-app.rule=Host(`python.localhost`)"
+      - "traefik.http.services.python-app.loadbalancer.server.port=5000"
 
   java-app:
     build: apps/java-app
-    ports:
-      - "8082:8080"
     networks:
       - elk
+    labels: 
+      - "traefik.enable=true"           
+      - "traefik.http.routers.java-app.rule=Host(`java.localhost`)"
+      - "traefik.http.services.java-app.loadbalancer.server.port=8080"
 
   php-app:
     build: 
@@ -217,20 +252,24 @@ services:
 
   go-app:
     build: apps/go-app    
-    ports: 
-      - "8083:8080"
     networks:
       - elk
+    labels: 
+      - "traefik.enable=true"           
+      - "traefik.http.routers.go-app.rule=Host(`go.localhost`)"
+      - "traefik.http.services.go-app.loadbalancer.server.port=8080"
 
   nginx:
     image: nginx:1.17-alpine
-    ports:
-      - 8080:80
     volumes:
       - ./apps/php-app:/var/www
       - ./apps/php-app/docker/nginx:/etc/nginx/conf.d
     networks:
       - elk
+    labels: 
+      - "traefik.enable=true"           
+      - "traefik.http.routers.nginx.rule=Host(`php.localhost`)"
+      - "traefik.http.services.nginx.loadbalancer.server.port=80"
 
   redis:
     image: redis
@@ -247,18 +286,6 @@ services:
       MYSQL_USER: ${MYSQL_USERNAME}  
     networks:
       - elk
-  
-  apache-teste:
-    image: httpd:2.4
-    ports: 
-      - 8084:80
-    labels: 
-      co.elastic.logs/module: apache2
-      co.elastic.logs/fileset.stdout: access
-      co.elastic.logs/fileset.stderr: error
-      co.elastic.metrics/module: apache
-      co.elastic.metrics/metricsets: status
-      co.elastic.metrics/hosts: "localhost:8084"
 
 networks:
   elk:
