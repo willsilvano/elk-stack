@@ -1,0 +1,18 @@
+es_host: elasticsearch
+es_port: 9200
+name: Uptime
+type: change
+index: alerts_kibana
+compare_key: "state.statusMessage"
+ignore_null: true
+query_key: "state.monitorId"
+timeframe:
+  days: 1
+filter:
+- query:
+    query_string:
+      query: "alertName: Uptime"
+alert:
+- "telegram"
+telegram_bot_token: 
+telegram_room_id: 

@@ -10,6 +10,7 @@ class StatusController extends Controller
 {
     public function status()
     {
+        info('Hello!');
         return response()->json(['success' => true]);
     }
 

@@ -1,0 +1,16 @@
+es_host: elasticsearch
+es_port: 9200
+name: Hello Rule
+type: frequency
+index: logstash-*
+num_events: 5
+timeframe:
+    hours: 4
+filter:
+- query:
+    query_string:
+      query: "message: Hello"
+alert:
+- "telegram"
+telegram_bot_token: 
+telegram_room_id: 

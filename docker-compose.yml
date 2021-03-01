@@ -287,6 +287,18 @@ services:
     networks:
       - elk
 
+  elastalert:
+    build: elastalert
+    volumes:
+      - ./elastalert:/usr/src/app
+    volumes: 
+      - type: bind
+        source: ./tls/kibana/elasticsearch-ca.pem
+        target: /usr/src/app/elasticsearch-ca.pem
+        read_only: true
+    networks:
+      - elk
+
 networks:
   elk:
     driver: bridge
